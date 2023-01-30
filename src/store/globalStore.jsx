@@ -88,7 +88,7 @@ export const logUser = action(
       const response = await get_user(data.token);
 
       console.log(response);
-      navigate("/home");
+      navigate("/listing-console/home");
     } catch (error) {
       //On supprime l'affichage du loading
       setloading(false);
