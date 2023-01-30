@@ -135,6 +135,7 @@ export const deleteUser = action(globalStore, "deleteUser", async (store) => {
     console.log("usertoeken ==", userToken);
 
     const response = await delete_user(userToken, user.id);
+    console.log(response);
 
     // //Recuperation du token
     // const userToken = await getStoreData(USER_TOKEN_KEY);

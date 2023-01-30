@@ -8,11 +8,11 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/listing-console/" element={<Login />} />
 
-        <Route path="/home" element={<Index />} />
+        <Route path="/listing-console/home" element={<Index />} />
 
-        {/* <Route path="/*" element={<Error />} /> */}
+        <Route path="/listing-console/*" element={<Error />} />
       </Routes>
     </div>
   );

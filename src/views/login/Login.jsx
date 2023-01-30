@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useStore } from "@nanostores/react";
 import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
@@ -15,40 +15,13 @@ export default function Login() {
   const { email, password, errors } = useStore(globalStore);
 
   const navigate = useNavigate();
-
-  // const [form, setForm] = useState({});
-  // const [errors, setErrors] = useState({});
-
-  // const setField = (field, value) => {
-  //   setForm({
-  //     ...form,
-  //     [field]: value,
-  //   });
-
-  //   if (!!errors[field]) {
-  //     setErrors({
-  //       ...errors,
-  //       [field]: null,
-  //     });
-  //   }
-  // };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault()
-  //   console.log(form);
-  // }
-
-
-  // useEffect(() => {
-  //   if (userIsLog) {
-  //     navigate("/home");
-  //   }
-  // }, [userIsLog]);
-
   return (
     <div className="container">
       <div className="row justify-content-center align-item-center">
-        <h1>Login</h1>
+        <h1>Bienvenue sur la console d'administration Listing</h1>
+      </div>
+      <div className="row justify-content-center align-item-center">
+        <p>Merci de vous identifiez ci-dessous :</p>
       </div>
 
       <div className="row justify-content-center align-item-center">
@@ -70,9 +43,6 @@ export default function Login() {
             <Form.Control.Feedback type="invalid">
               {errors.email}
             </Form.Control.Feedback>
-            <Form.Text className="text-muted">
-              We'll never share your email with anyone else.
-            </Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="formBasicPassword">
