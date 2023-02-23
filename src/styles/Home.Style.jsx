@@ -1,5 +1,3 @@
-
-import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 /**
@@ -12,4 +10,9 @@ export const CenteredMainContainer = styled.div`
   justify-content: center;
   min-height: 100vh;
   min-width: 100vw;
+`
+
+
+export const Header = styled.header`
+
 `

@@ -1,12 +1,14 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Error from "../components/Error";
+import { GlobalStyle } from "../styles/GlobalStyle";
 import Index from "./home/Index";
 import Login from "./login/Login";
 
 function App() {
   return (
-    <div className="App">
+    <React.StrictMode>
+      <GlobalStyle />
       <Routes>
         <Route path="/listing-console/" element={<Login />} />
 
@@ -14,7 +16,7 @@ function App() {
 
         <Route path="/listing-console/*" element={<Error />} />
       </Routes>
-    </div>
+    </React.StrictMode>
   );
 }
 
