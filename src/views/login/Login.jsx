@@ -19,9 +19,13 @@ import {
   Subtitle,
   Title,
   TitleName,
-} from "../../styles/Login.Style";
+} from "./Login.Style";
 
 import MainLogo from "../../assets/img/logo_listing_application.png";
+
+export const sum = (a, b) => {
+  return a + b;
+};
 
 export default function Login() {
   const { email, password, errors } = useStore(globalStore);
@@ -34,8 +38,10 @@ export default function Login() {
         <Logo src={MainLogo} alt="Logo application Listing" />
       </LogoWrapper>
 
+      {/* {sum(10, 5)} */}
+
       <div>
-        <Title>
+        <Title data-testid="login-page-title">
           Bienvenue sur la console d'administration{" "}
           <TitleName>Listing</TitleName>{" "}
         </Title>

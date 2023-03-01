@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { TEXT_COLOR, COLORS, RADIUS } from "../utils/theme";
+import { TEXT_COLOR, COLORS, RADIUS } from "../../utils/theme";
 
 /**
  * Container affichant tout de manière centré

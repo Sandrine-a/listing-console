@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
+
 import { useStore } from "@nanostores/react";
+
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 
-import { useEffect } from "react";
 import {
   deleteUser,
   getUsers,

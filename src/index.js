@@ -1,10 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
-import reportWebVitals from "./reportWebVitals";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import reportWebVitals from "./reportWebVitals.js";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-import App from "./views/App";
+import { GlobalStyle } from "./styles/GlobalStyle.jsx";
+
+import App from "./views/App.jsx";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -12,6 +14,7 @@ root.render(
     <Router>
       <App />
     </Router>
+    <GlobalStyle />
   </React.StrictMode>
 );
 
