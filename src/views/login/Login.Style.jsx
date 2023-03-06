@@ -72,3 +72,7 @@ export const LoginButton = styled(Button)`
     border-width: 2px; */
   }
 `;
+
+export const ErrorMessage = styled.p`
+  color: red;
+`;

@@ -1,23 +1,32 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+/**
+ * @jest-environment jsdom
+ */
+
+import "@testing-library/jest-dom";
+
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import App from "../../App";
-import Login, { sum } from "../Login";
+import Login from "../Login";
 
-describe("First unit test sum", () => {
-  //Test Unit for function: Sum
-  it("Should return 20", () => {
-    const result = sum(10, 10);
+import userEvent from "@testing-library/user-event";
+import { globalStore } from "../../../store/globalStore";
 
-    expect(result).toEqual(20);
-
-    //Ou plus simplement:
-    // expect(sum(10, 10)).toBe(20);
-  });
-});
+//Recreer la page login avant chaque test
+const setup = () => {
+  render(<Login />, { wrapper: MemoryRouter });
+};
 
 describe("Login Integration Test Suite", () => {
   it("should render the Login Page with title", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+    //First calling the setup function
+    setup();
+
     expect(screen.getByTestId("login-page-title")).toHaveTextContent(
       /Bienvenue sur la console d'administration Listing/i
     );
@@ -25,37 +34,46 @@ describe("Login Integration Test Suite", () => {
   });
 
   it("should have an <img /> with the alt attribute", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+    //First calling the setup function
+    setup();
 
     const image = screen.getByAltText("Logo application Listing");
     expect(image).toBeInTheDocument();
   });
 
-  it("should have render an input for email", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+  it("should render an input for email", () => {
+    //First calling the setup function
+    setup();
     const emailInputEl = screen.getByPlaceholderText(/Entrer le mail/i);
     expect(emailInputEl).toBeInTheDocument();
+    // expect(emailInputEl).toBeTruthy();
   });
 
   it("should have render an input for password", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+    //First calling the setup function
+    setup();
+
     const passwordInputEl = screen.getByPlaceholderText(
       /Entrer le mot de passe/i
     );
     expect(passwordInputEl).toBeInTheDocument();
   });
 
-  it("should have an input button", () => {
-    render(<Login />, { wrapper: MemoryRouter });
-    const buttonEl = screen.getByRole("button");
+  it("should have an input button with the correct label Se connecter", () => {
+    //First calling the setup function
+    setup();
+
+    const buttonEl = screen.getByRole("button", { name: "Se connecter" });
     expect(buttonEl).toBeInTheDocument();
   });
 
   /**
    * Verification de la valeur de l'input email
    */
-  it("should be be empty for emailInput", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+  it("should be empty for emailInput", () => {
+    //First calling the setup function
+    setup();
+
     const emailInputEl = screen.getByPlaceholderText(/Entrer le mail/i);
     expect(emailInputEl.value).toBe("");
   });
@@ -63,8 +81,10 @@ describe("Login Integration Test Suite", () => {
   /**
    * Verification de la valeur de l'input paswword
    */
-  it("should be be empty for passwordInput", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+  it("should be empty for passwordInput", () => {
+    //First calling the setup function
+    setup();
+
     const passwordInputEl = screen.getByPlaceholderText(
       /Entrer le mot de passe/i
     );
@@ -75,9 +95,10 @@ describe("Login Integration Test Suite", () => {
    * Verification de la valeur de l'input email change
    */
   it("should change the email input value", () => {
-    render(<Login />, { wrapper: MemoryRouter });
-    const emailInputEl = screen.getByPlaceholderText(/Entrer le mail/i);
+    //First calling the setup function
+    setup();
 
+    const emailInputEl = screen.getByPlaceholderText(/Entrer le mail/i);
     //Je cree ma nouvelle valeur test
     const testValue = "test";
     //Je cree  l'evenement onchange
@@ -90,11 +111,12 @@ describe("Login Integration Test Suite", () => {
    * Verification de la valeur de l'input password change
    */
   it("should change the password input value", () => {
-    render(<Login />, { wrapper: MemoryRouter });
+    //First calling the setup function
+    setup();
+
     const passwordInputEl = screen.getByPlaceholderText(
       /Entrer le mot de passe/i
     );
-
     //Je cree ma nouvelle valeur test
     const testValue = "password";
     //Je cree  l'evenement onchange
@@ -104,6 +126,111 @@ describe("Login Integration Test Suite", () => {
   });
 
   /**
-   * Verification l'affichage des messages d'erreur
+   * Verification l'affichage du message d'erreur de email et password
    */
+  it("should display an error message for the email and password input after submit, when they are empty", async () => {
+    //First calling the setup function
+    setup();
+
+    //Cible le bouton qui appelle la fonction handleLogin()
+    const buttonEl = screen.getByRole("button", { name: "Se connecter" });
+    //Cible la div qui contient le message d'erreur email
+    const emailErrorMessage = screen.getByTestId("user-email-error-msg");
+    //Cible la div qui contient le message d'erreur email
+    const passwordErrorMessage = screen.getByTestId("user-password-error-msg");
+
+    //Les changements de state doivent entre mis dans act()
+    act(() => {
+      globalStore.set({
+        email: "",
+        password: "",
+        loading: false,
+        errors: {},
+      });
+
+      fireEvent.click(buttonEl);
+
+      globalStore.setKey("loading", true);
+    });
+
+    await waitFor(() =>
+      expect(emailErrorMessage).toHaveTextContent(
+        "Merci de rentrer une adresse email"
+      )
+    );
+
+    await waitFor(() =>
+      expect(passwordErrorMessage).toHaveTextContent(
+        "Merci de rentrer le mot de passe"
+      )
+    );
+  });
+
+  /**
+   * Verification l'affichage du message d'erreur de password
+   */
+  it("should display an error message for password input after submit, when password is empty", async () => {
+    //First calling the setup function
+    setup();
+    //Cible le bouton qui appelle la fonction handleLogin()
+    const buttonEl = screen.getByRole("button", { name: "Se connecter" });
+    //Cible la div qui contient le message d'erreur email
+    const emailErrorMessage = screen.getByTestId("user-email-error-msg");
+    //Cible la div qui contient le message d'erreur email
+    const passwordErrorMessage = screen.getByTestId("user-password-error-msg");
+
+    //Les changements de state doivent entre mis dans act()
+    act(() => {
+      globalStore.set({
+        email: "",
+        password: "",
+        loading: false,
+        errors: {},
+      });
+
+      globalStore.setKey("email", "test");
+
+      fireEvent.click(buttonEl);
+
+      globalStore.setKey("loading", true);
+    });
+
+    await waitFor(() =>
+      expect(emailErrorMessage).not.toHaveTextContent(
+        "Merci de rentrer une adresse email"
+      )
+    );
+
+    await waitFor(() =>
+      expect(passwordErrorMessage).toHaveTextContent(
+        "Merci de rentrer le mot de passe"
+      )
+    );
+  });
+
+  // /**
+  //  * Verification l'affichage d'une connection correct
+  //  */
+  // it("should connect to the application without errorr", () => {
+  //   //First calling the setup function
+  //   setup();
+
+  //   const emailInputEl = screen.getByPlaceholderText(/Entrer le mail/i);
+  //   //Je cree ma nouvelle valeur test
+  //   const passwordInputEl = screen.getByPlaceholderText(
+  //     /Entrer le mot de passe/i
+  //   );
+  //   //Je cree mes nouvelles valeur test
+  //   const emailTestValue = "admin";
+  //   const passwordTestValue = "admin12"
+  //   //Je cree les evenements onchange
+  //   fireEvent.change(pemailInputEl , { target: { value: emailTestValue } });
+  //   fireEvent.change(passwordInputEl, { target: { value: passwordTestValue } });
+
+  //   userEvent.click(getByRole(document.body, "button"));
+
+  //   expect(
+  //     getByTestId(document.body, "user-email-error-msg")
+  //   ).toBeInTheDocument();
+  // });
 });

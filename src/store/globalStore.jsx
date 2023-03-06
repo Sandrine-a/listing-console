@@ -54,8 +54,8 @@ export const setloading = action(
 /**
  * Action permettant de changer et afficher les erreurs
  */
-export const setError = action(globalStore, "setError", (store, error) => {
-  store.setKey("error", error);
+export const setErrors = action(globalStore, "setError", (store, errors) => {
+  store.setKey("errors", errors);
 });
 
 /**
@@ -72,13 +72,11 @@ export const logUser = action(
   globalStore,
   "logUser",
   async (store, navigate) => {
-    //On affiche le loading
-
-    setloading(true);
-
-    const { email, password } = store.get();
-
+    const { email, password /*  errors  */ } = store.get();
     try {
+      //On affiche le loading
+
+      setloading(true);
       //Demande de token
       const data = await get_token(email, password);
 
@@ -90,10 +88,11 @@ export const logUser = action(
       console.log(response);
       navigate("/listing-console/home");
     } catch (error) {
+      console.log("error", error);
       //On supprime l'affichage du loading
       setloading(false);
       //On affiche l'erreur
-      setError(`Oops! Erreurs d'identifcation!`);
+      setErrors({ api: "Oops! Erreurs d'identifcation!" });
     }
   }
 );
@@ -102,10 +101,9 @@ export const logUser = action(
  * Action permettant d'envoyer la request get all users
  */
 export const getUsers = action(globalStore, "getUsers", async (store, data) => {
-  //On affiche le loading
-  setloading(true);
-
+  // const { errors } = store.get();
   try {
+    //On affiche le loading
     setloading(true);
     // Recuperation du token dans localstorage
     const userToken = localStorage.getItem("token");
@@ -117,7 +115,8 @@ export const getUsers = action(globalStore, "getUsers", async (store, data) => {
     //On supprime l'affichage du loading
     setloading(false);
     //On affiche l'erreur
-    setError(`Oops! Erreurs d'identifcation!`);
+    setErrors(`Oops! Erreurs d'identifcation!`);
+    // setErrors({ api: "Oops! Erreurs d'identifcation!" });
   }
 });
 
@@ -125,11 +124,10 @@ export const getUsers = action(globalStore, "getUsers", async (store, data) => {
  * Action permettant d'envoyer la request updateuser
  */
 export const deleteUser = action(globalStore, "deleteUser", async (store) => {
+  const { user /* errors  */ } = store.get();
   try {
     //On affiche le loading
     setloading(true);
-    //Recuperation du user dans le
-    const { user } = store.get();
 
     const userToken = localStorage.getItem("token");
     console.log("usertoeken ==", userToken);
@@ -159,7 +157,8 @@ export const deleteUser = action(globalStore, "deleteUser", async (store) => {
     //On supprime l'affichage du loading
     setloading(false);
     //On affiche l'erreur
-    setError("Oopss!");
+    setErrors("Oopss!");
+    // setErrors((errors.api = "Oopss!"));
   }
 });
 
@@ -173,8 +172,6 @@ export const handleSubmit = action(
     if (Object.keys(formErrors).length > 0) {
       store.setKey("errors", formErrors);
     } else {
-      console.log("no error");
-
       logUser(navigate);
     }
   }

@@ -11,6 +11,7 @@ import {
 } from "../../store/globalStore";
 
 import {
+  ErrorMessage,
   Input,
   LoginButton,
   Logo,
@@ -23,10 +24,6 @@ import {
 
 import MainLogo from "../../assets/img/logo_listing_application.png";
 
-export const sum = (a, b) => {
-  return a + b;
-};
-
 export default function Login() {
   const { email, password, errors } = useStore(globalStore);
 
@@ -38,8 +35,6 @@ export default function Login() {
         <Logo src={MainLogo} alt="Logo application Listing" />
       </LogoWrapper>
 
-      {/* {sum(10, 5)} */}
-
       <div>
         <Title data-testid="login-page-title">
           Bienvenue sur la console d'administration{" "}
@@ -48,13 +43,17 @@ export default function Login() {
       </div>
 
       <SectionContainer>
-        <Subtitle>Accéder à la console</Subtitle>
+        <Subtitle data-testid="login-page-h2">Accéder à la console</Subtitle>
       </SectionContainer>
 
       <SectionContainer>
         <p>
           Pour gérer les utilisateurs, merci de vous identifiez ci-dessous:{" "}
         </p>
+      </SectionContainer>
+
+      <SectionContainer>
+        <ErrorMessage data-testid="api-error-msg">{errors.api}</ErrorMessage>
       </SectionContainer>
 
       <div className="row justify-content-center align-item-center">
@@ -72,7 +71,10 @@ export default function Login() {
               value={email}
               isInvalid={!!errors.email}
             />
-            <Form.Control.Feedback type="invalid">
+            <Form.Control.Feedback
+              type="invalid"
+              data-testid="user-email-error-msg"
+            >
               {errors.email}
             </Form.Control.Feedback>
           </Form.Group>
@@ -87,7 +89,10 @@ export default function Login() {
               value={password}
               isInvalid={!!errors.password}
             />
-            <Form.Control.Feedback type="invalid">
+            <Form.Control.Feedback
+              type="invalid"
+              data-testid="user-password-error-msg"
+            >
               {errors.password}
             </Form.Control.Feedback>
           </Form.Group>
