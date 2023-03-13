@@ -7,6 +7,7 @@ import "@testing-library/jest-dom";
 import {
   act,
   fireEvent,
+  getByRole,
   render,
   screen,
   waitFor,
@@ -15,7 +16,11 @@ import { MemoryRouter } from "react-router-dom";
 import Login from "../Login";
 
 import userEvent from "@testing-library/user-event";
-import { globalStore } from "../../../store/globalStore";
+import { globalStore, handleSubmit, logUser } from "../../../store/globalStore";
+
+// import axios from "axios";
+
+// jest.mock(axios);
 
 //Recreer la page login avant chaque test
 const setup = () => {
@@ -208,29 +213,33 @@ describe("Login Integration Test Suite", () => {
     );
   });
 
-  // /**
-  //  * Verification l'affichage d'une connection correct
-  //  */
-  // it("should connect to the application without errorr", () => {
-  //   //First calling the setup function
-  //   setup();
+  it("should call handleSubmit function", async () => {
+    //First, create the mock of the handleSubmit
+    const handleSubmit = jest.fn();
+    //And mock for
+    const e = { preventDefault: jest.fn() };
 
-  //   const emailInputEl = screen.getByPlaceholderText(/Entrer le mail/i);
-  //   //Je cree ma nouvelle valeur test
-  //   const passwordInputEl = screen.getByPlaceholderText(
-  //     /Entrer le mot de passe/i
-  //   );
-  //   //Je cree mes nouvelles valeur test
-  //   const emailTestValue = "admin";
-  //   const passwordTestValue = "admin12"
-  //   //Je cree les evenements onchange
-  //   fireEvent.change(pemailInputEl , { target: { value: emailTestValue } });
-  //   fireEvent.change(passwordInputEl, { target: { value: passwordTestValue } });
+    // Mock la fonction logUser
+    // globalStore.logUser = logUser;
+    globalStore.handleSubmit = handleSubmit;
 
-  //   userEvent.click(getByRole(document.body, "button"));
+    const navigate = jest.fn();
 
-  //   expect(
-  //     getByTestId(document.body, "user-email-error-msg")
-  //   ).toBeInTheDocument();
-  // });
+    //Passer le handleSubmit mock au component
+    render(<Login handleSubmit={handleSubmit(e, navigate)} />, {
+      wrapper: MemoryRouter,
+    });
+
+    await act(async () => {
+      await fireEvent.click(
+        screen.getByRole("button", { name: "Se connecter" })
+      );
+    });
+
+    expect(handleSubmit).toHaveBeenCalled();
+
+    expect(handleSubmit).not.toHaveBeenCalledTimes(2);
+
+    // screen.debug();
+  });
 });

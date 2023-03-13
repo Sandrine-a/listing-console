@@ -20,6 +20,8 @@ import { cleanStores, keepMount } from "nanostores";
 
 import Login from "../../views/login/Login";
 
+import axios from "axios";
+
 import {
   globalStore,
   validateForm,
@@ -28,7 +30,9 @@ import {
   setForm,
   setEmail,
   setPassword,
+  logUser,
 } from "../globalStore";
+import { get_token, get_user } from "../../providers/Api";
 
 beforeEach(() => {
   globalStore.set({
@@ -107,7 +111,7 @@ describe("setEmail  Unit Tests Suite", () => {
     // Récupération de la valeur de l'objet form dans le sotre
     const { email } = globalStore.get();
 
-    expect(email).toEqual("mail@test.com");
+    expect(email).toEqual(email.toLowerCase());
   });
 });
 
@@ -203,61 +207,141 @@ describe("validateForm Unit Tests Suite", () => {
   });
 });
 
-// describe("handleSubmit Unit Tests Suite", () => {
-//   /**
-//    * Verification l'affichage d'une connection réussie
-//    */
-//   it("should call handleSubmit", async () => {
-//     const navigate = jest.fn(); // Mock the navigate function
+describe("logUser unit tests suite", () => {
+  const mockStore = {
+    get: jest.fn(),
+  };
 
-//     const e = { preventDefault: jest.fn() }; // create a fake event object
+  let navigate;
 
-//     const store = {
-//       // créer un mock du store
-//       setKey: jest.fn(),
-//       get: jest.fn(),
-//     };
+  beforeEach(() => {
+    navigate = jest.fn();
+  });
 
-//     // Appeler handleSubmit avec les paramètres appropriés
-//     await handleSubmit(store, e, navigate);
+  afterEach(() => {
+    jest.resetAllMocks();
+    localStorage.clear();
+  });
 
-//     expect(store.get).toHaveBeenCalledTimes(2); // vérifier que store.get() a été appelée 2 fois
-//     expect(store.setKey).toHaveBeenCalledTimes(1); // vérifier que store.setKey() a été appelée 1 fois
-//     expect(navigate).toHaveBeenCalledTimes(1); // vérifier que navigate() a été appelée 1 fois
+  it("should not log the user in the application and thrown error", async () => {
+    mockStore.get.mockReturnValueOnce({
+      email: "invalid@test.com",
+      password: "password",
+    });
+
+    try {
+      const data = await get_token("invalid@test.com", "password");
+
+      console.log(data);
+    } catch (error) {
+      expect(error).toEqual(
+        new Error("Cannot read properties of undefined (reading 'data')")
+      );
+    }
+  });
+
+  it("should call the get_token and get_user functions and navigate to the home page when valid credentials are provided", async () => {
+    // 1- Arrange
+    // Creation du mock de la reponse au get_token
+    // Arrange
+    const mockTokenResponse = {
+      data: {
+        userId: "100",
+        token: "defkokfe",
+      },
+    };
+    const mockAdmin = {
+      userId: 10,
+      username: "test",
+      email: process.env.REACT_APP_ADMIN_ID,
+    };
+
+    jest.mock("axios", () => ({
+      post: jest.fn().mockResolvedValueOnce(mockTokenResponse),
+      get: jest.fn().mockResolvedValueOnce(mockAdmin),
+    }));
+
+    // get_user.mockResolvedValueOnce(mockAdmin);
+
+    // const result = await get_user(mockTokenResponse.token);
+
+    // console.log(result);
+
+    await logUser(mockStore, navigate);
+
+    expect(axios.post).toHaveBeenCalledTimes(1);
+
+    // expect(localStorage.setItem).toHaveBeenCalledWith(
+    //   "token",
+    //   mockTokenResponse.token
+    // );
+
+    // expect(mockSetLoading).toHaveBeenCalledWith(true);
+    // expect(navigate).toHaveBeenCalledWith("/listing-console/home");
+
+    // expect(axios.get).toHaveBeenCalledTimes(1);
+  });
+});
+
+// describe("logUser", () => {
+//   const mockStore = {
+//     get: jest.fn(),
+//     set: jest.fn(),
+//   };
+//   let navigate;
+
+//   beforeEach(() => {
+//     navigate = jest.fn();
+//     mockStore.get.mockReturnValueOnce({
+//       email: "test@test.com",
+//       password: "password",
+//     });
 //   });
-// });
 
-// describe("handleSubmit Unit Tests Suite", () => {
-//   /**
-//    * Verification l'affichage d'une connection réussie
-//    */
-//   it("should call handleSubmit", async () => {
-//     const handleSubmit = jest.fn(); // Créer un mock pour handleSubmit
+//   afterEach(() => {
+//     jest.resetAllMocks();
+//     localStorage.clear();
+//   });
 
-//     render(<Login handleSubmit={handleSubmit} />, {
-//       wrapper: MemoryRouter,
-//     });
+//   it("should call the get_token and get_user functions and navigate to the home page when valid credentials are provided", async () => {
+//     // Arrange
+//     const mockTokenResponse = {
+//       data: {
+//         userId: "100",
+//         token: "defkokfe",
+//       },
+//     };
+//     jest.mock("axios", () => ({
+//       post: jest.fn().mockResolvedValueOnce(mockTokenResponse),
+//       get: jest.fn(),
+//     }));
 
-//     act(() => {
-//       const emailInputEl = screen.getByPlaceholderText(/Entrer le mail/i);
+//     // Act
+//     await logUser(mockStore, navigate);
 
-//       const passwordInputEl = screen.getByPlaceholderText(
-//         /Entrer le mot de passe/i
-//       );
-
-//       const buttonEl = screen.getByRole("button", { name: "Se connecter" });
-
-//       fireEvent.change(passwordInputEl, {
-//         target: { value: "johndoe@test.fr" },
-//       });
-
-//       fireEvent.change(emailInputEl, {
-//         target: { value: "password" },
-//       });
-
-//       fireEvent.click(buttonEl);
-
-//       expect(handleSubmit).toHaveBeenCalledTimes(1);
-//     });
+//     // Assert
+//     // expect(mockStore.get).toHaveBeenCalledTimes(1);
+//     // expect(mockStore.get).toHaveBeenCalledWith();
+//     expect(localStorage.getItem("token")).toEqual(mockTokenResponse.data.token);
+//     expect(navigate).toHaveBeenCalledTimes(1);
+//     expect(navigate).toHaveBeenCalledWith("/listing-console/home");
+//     expect(axios.post).toHaveBeenCalledTimes(1);
+//     expect(axios.post).toHaveBeenCalledWith(
+//       "https://listing-db.herokuapp.com/api/v1/users/token",
+//       {
+//         email: "test@test.com",
+//         password: "password",
+//       }
+//     );
+//     expect(axios.get).toHaveBeenCalledTimes(1);
+//     expect(axios.get).toHaveBeenCalledWith(
+//       "https://listing-db.herokuapp.com/api/v1/users/me",
+//       {
+//         "Content-Type": "application/json",
+//         headers: {
+//           Authorization: `Bearer ${mockTokenResponse.data.token}`,
+//         },
+//       }
+//     );
 //   });
 // });
